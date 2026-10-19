@@ -4,814 +4,558 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tom Longhurst</title>
-<meta name="description" content="Tom Longhurst builds open-source .NET tools, including the TUnit testing framework, ModularPipelines, Dekaf, Respire, Kevlar and BDTest.">
+<meta name="description" content="Open-source libraries for building, testing and running .NET: TUnit, ModularPipelines, Dekaf, Respire, Kevlar and BDTest.">
 <meta property="og:title" content="Tom Longhurst">
-<meta property="og:description" content="Open-source .NET tools: TUnit, ModularPipelines, Dekaf, Respire, Kevlar and BDTest.">
+<meta property="og:description" content="Open-source libraries for building, testing and running .NET.">
 <meta property="og:url" content="https://tomlonghurst.dev/">
-<meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232340E0'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='15' font-weight='700' fill='white' text-anchor='middle'%3ETL%3C/text%3E%3C/svg%3E">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0d12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315181f'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='15' font-weight='800' fill='%23eef0f5' text-anchor='middle'%3ETL%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,300..900&family=Schibsted+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --fog: #E8ECEF;
-    --ink: #16202E;
-    --slate: #556273;
-    --rule: #C6CED7;
-    --cobalt: #2340E0;
-    --fail: #C8382E;
-    --panel: #DCE2E8;
-    --display: "Anybody", "Arial Narrow", sans-serif;
-    --body: "Schibsted Grotesk", system-ui, sans-serif;
-    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    --ground: oklch(0.14 0.006 260);
+    --ink: oklch(0.95 0.006 260);
+    --mono: 'Martian Mono', ui-monospace, monospace;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --fog: #11161E;
-      --ink: #E4E9EF;
-      --slate: #95A2B2;
-      --rule: #2A3443;
-      --cobalt: #8FA2FF;
-      --fail: #F07B6E;
-      --panel: #19202B;
-    }
-  }
-  :root[data-theme="dark"] {
-    --fog: #11161E;
-    --ink: #E4E9EF;
-    --slate: #95A2B2;
-    --rule: #2A3443;
-    --cobalt: #8FA2FF;
-    --fail: #F07B6E;
-    --panel: #19202B;
-  }
+  body { margin: 0; background: var(--ground); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { opacity: .75; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  input[type=range] { accent-color: currentColor; }
+  input::placeholder { color: oklch(0.55 0.01 90); }
+  noscript { display: block; padding: 40px; font-family: 'Schibsted Grotesk', sans-serif; }
 
-  *, *::before, *::after { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0;
-    background: var(--fog);
-    color: var(--ink);
-    font: 400 1rem/1.5 var(--body);
-    -webkit-font-smoothing: antialiased;
-  }
-  a { color: inherit; }
-  :focus-visible {
-    outline: 3px solid var(--cobalt);
-    outline-offset: 4px;
-    border-radius: 2px;
-  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding-left: 40px; padding-right: 40px; box-sizing: border-box; }
+  .stage { padding: 48px; }
+  .tile:hover { background: var(--hov) !important; }
+  .chip:hover { border-color: var(--acc) !important; }
+  .next:hover { color: var(--fg) !important; }
 
-  .page {
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 90rem;
-    margin: 0 auto;
-    padding: 0 clamp(1rem, 3.5vw, 3rem);
-  }
-
-  /* Header */
-  .top {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 1.5rem 0;
-    font-size: 0.9375rem;
-  }
-  .top nav { display: flex; gap: 1.25rem; }
-  .top a { text-decoration: none; color: var(--slate); }
-  .top a:hover { color: var(--ink); }
-  .top .mark { font-weight: 700; color: var(--ink); }
-
-  main {
-    display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-    gap: clamp(2rem, 5vw, 5rem);
-    padding-bottom: clamp(1.5rem, 3vh, 2.5rem);
-    min-height: 0;
-  }
-
-  /* Left: intro and project tabs */
-  .side { display: flex; flex-direction: column; min-height: 0; }
-  .side h1 {
-    margin: 0 0 0.75rem;
-    font-family: var(--display);
-    font-weight: 800;
-    font-variation-settings: "wdth" 62;
-    font-size: clamp(2.25rem, min(4.4vw, 7vh), 4rem);
-    line-height: 0.95;
-    letter-spacing: -0.01em;
-    max-width: 11em;
-  }
-  .side > p {
-    margin: 0 0 clamp(1.25rem, 4vh, 2.5rem);
-    color: var(--slate);
-    max-width: 30em;
-  }
-
-  .tabs {
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    border-top: 2px solid var(--ink);
-  }
-  .tab {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
-    width: 100%;
-    padding: clamp(0.3rem, 1vh, 0.6rem) 0;
-    border: 0;
-    border-bottom: 1px solid var(--rule);
-    background: none;
-    color: var(--slate);
-    cursor: pointer;
-    text-align: left;
-    font: inherit;
-  }
-  .tab-name {
-    font-family: var(--display);
-    font-weight: 700;
-    font-variation-settings: "wdth" 66;
-    font-size: clamp(1.75rem, min(4.2vw, 6.2vh), 3.75rem);
-    line-height: 1;
-    letter-spacing: -0.015em;
-    transition: font-variation-settings 420ms cubic-bezier(.2,.7,.2,1), color 200ms;
-  }
-  .tab:hover .tab-name { color: var(--ink); font-variation-settings: "wdth" 90; }
-  .tab[aria-selected="true"] .tab-name { color: var(--cobalt); font-variation-settings: "wdth" 104; }
-  .tab-stars { font-size: 0.875rem; font-weight: 500; white-space: nowrap; }
-  .tab-progress {
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    height: 2px;
-    width: 100%;
-    background: var(--cobalt);
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-
-  /* Right: stage */
-  .stage {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-  .screen {
-    position: relative;
-    flex: 1 1 auto;
-    min-height: 14rem;
-    background: var(--panel);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .status {
-    position: absolute;
-    left: 1rem;
-    bottom: 0.8rem;
-    font: 500 0.8125rem/1 var(--mono);
-    color: var(--slate);
-  }
-  .copy {
-    /* fixed height so the screen does not jump between projects */
-    height: 12.5rem;
-    padding-top: clamp(1rem, 2.5vh, 1.75rem);
-    transition: opacity 220ms;
-  }
-  .copy.swap { opacity: 0; }
-  .copy h2 {
-    margin: 0 0 0.35rem;
-    font-size: 1.25rem;
-    line-height: 1.3;
-  }
-  .copy p {
-    margin: 0 0 0.9rem;
-    color: var(--slate);
-    max-width: 38em;
-  }
-  .copy code {
-    display: block;
-    margin: 0 0 0.9rem;
-    padding: 0.55rem 0.8rem;
-    background: var(--panel);
-    border-radius: 4px;
-    font: 400 0.8125rem/1.5 var(--mono);
-    overflow-x: auto;
-    white-space: pre;
-  }
-  .copy code:empty { display: none; }
-  .links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; font-weight: 500; }
-  .links a {
-    color: var(--cobalt);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-  }
-  .links a:hover { text-decoration-thickness: 2px; }
-
-  /* One screen on desktop; normal scroll on small or short screens */
-  @media (min-width: 900px) and (min-height: 640px) {
-    body { height: 100dvh; overflow: hidden; }
-    .page { height: 100dvh; }
-  }
-  @media (max-width: 899px), (max-height: 639px) {
-    main { grid-template-columns: minmax(0, 1fr); }
-    .tabs { margin-top: 0; }
-    .screen { flex: none; height: min(60vw, 20rem); }
-  }
-
-  /* Page load: tab names open from narrow to set width, once */
-  @media (prefers-reduced-motion: no-preference) {
-    .js .tab-name { animation: open 900ms cubic-bezier(.2,.7,.2,1) backwards; }
-    .js .tab:nth-child(2) .tab-name { animation-delay: 60ms; }
-    .js .tab:nth-child(3) .tab-name { animation-delay: 120ms; }
-    .js .tab:nth-child(4) .tab-name { animation-delay: 180ms; }
-    .js .tab:nth-child(5) .tab-name { animation-delay: 240ms; }
-    .js .tab:nth-child(6) .tab-name { animation-delay: 300ms; }
-    @keyframes open {
-      from { font-variation-settings: "wdth" 50; opacity: 0; }
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .tab-name, .copy { transition: none; }
+  @media (max-width: 640px) {
+    .wrap { padding-left: 16px; padding-right: 16px; }
+    .stage { padding: 24px 16px; }
+    .demo { padding: 20px 16px !important; }
   }
 </style>
-<script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
-<div class="page">
-  <header class="top">
-    <a class="mark" href="/">Tom Longhurst</a>
-    <nav aria-label="Elsewhere">
-      <a href="https://github.com/thomhurst">GitHub</a>
-      <a href="https://github.com/sponsors/thomhurst">Sponsor</a>
-    </nav>
-  </header>
+<div id="app"></div>
+<noscript><a href="https://github.com/thomhurst">Tom Longhurst on GitHub</a></noscript>
 
-  <main>
-    <section class="side">
-      <h1>I build tools .NET developers run every day.</h1>
-      <p>Test frameworks, messaging clients, resilience and CI pipelines, all in plain C#. Based in London, and a photographer when away from the keyboard.</p>
-      <div class="tabs" role="tablist" aria-label="Open-source projects"></div>
-    </section>
+<script type="module">
+import { html, render } from 'https://cdn.jsdelivr.net/npm/lit-html@3.1.4/+esm';
+import { live } from 'https://cdn.jsdelivr.net/npm/lit-html@3.1.4/directives/live.js/+esm';
 
-    <section class="stage" id="stage" role="tabpanel" aria-live="polite">
-      <div class="screen">
-        <canvas aria-hidden="true"></canvas>
-        <span class="status" aria-hidden="true"></span>
-      </div>
-      <div class="copy">
-        <h2></h2>
-        <p></p>
-        <code></code>
-        <div class="links">
-          <a data-docs>Read the docs</a>
-          <a data-source>View source</a>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
-
-<script>
-const projects = [
-  {
-    repo: "TUnit", name: "TUnit", stars: 3979, docs: "https://tunit.dev/",
-    title: "A modern testing framework for .NET",
-    text: "Tests are found at compile time by source generators, run in parallel by default and work under Native AOT. Built on Microsoft.Testing.Platform.",
-    code: "await Assert.That(total).IsEqualTo(expected);",
-    scene: "tunit",
-  },
-  {
-    repo: "ModularPipelines", name: "Modular Pipelines", stars: 558, docs: "https://thomhurst.github.io/ModularPipelines/",
-    title: "CI/CD pipelines written in C#",
-    text: "Replace YAML with modules that declare their dependencies. Set a breakpoint, step through the pipeline and fix it before you push.",
-    code: "[DependsOn<BuildModule>]\npublic class PublishModule : Module<CommandResult>",
-    scene: "pipelines",
-  },
-  {
-    repo: "Dekaf", name: "Dekaf", stars: 91, docs: "https://thomhurst.github.io/Dekaf/",
-    title: "A Kafka client in pure C#",
-    text: "Speaks the Kafka wire protocol directly, with no librdkafka and no native dependencies. Zero-allocation hot paths, Native AOT support, and retry topics and dead letter queues built in.",
-    code: "",
-    scene: "dekaf",
-  },
-  {
-    repo: "BDTest", name: "BDTest", stars: 91, docs: "https://thomhurst.github.io/BDTest/",
-    title: "Behaviour-driven testing without Gherkin",
-    text: "Write Given, When and Then scenarios in C#, run them with your usual test framework, and share readable HTML reports.",
-    code: "",
-    scene: "bdtest",
-  },
-  {
-    repo: "Respire", name: "Respire", stars: 21, docs: "https://thomhurst.github.io/Respire/",
-    title: "A fast Redis client for .NET",
-    text: "Plain C# types in, plain C# types out. Works with Redis, Valkey, KeyDB and other RESP servers, with no multiplexer to configure.",
-    code: "User? user = await redis.GetAsync<User>(\"user:1\");",
-    scene: "respire",
-  },
-  {
-    repo: "Kevlar", name: "Kevlar", stars: 21, docs: "https://thomhurst.github.io/Kevlar/",
-    title: "Readable resilience for .NET",
-    text: "Retries, circuit breakers, timeouts, rate limiting, hedging and fallbacks in one fluent API. Build a shield once and reuse it with ordinary delegates.",
-    code: "var shield = Shield.Retry(3);",
-    scene: "kevlar",
-  },
+const P = [
+  { id: 'tunit', name: 'TUnit', pkg: 'TUnit', tag: 'Test framework', h: 150, docs: 'https://tunit.dev',
+    headline: 'Tests run in parallel by default. Opt out per test when you need to.',
+    blurb: 'A modern testing framework for .NET. Tests are discovered by source generators at compile time and work with Native AOT. Run the suite, then switch to [NotInParallel].',
+    code: '[Test]\n[Arguments(1, 2, 3)]\n[Arguments(2, 2, 4)]\npublic async Task Add(int a, int b, int expected)\n{\n    var result = Calculator.Add(a, b);\n\n    await Assert.That(result).IsEqualTo(expected);\n}' },
+  { id: 'modularpipelines', name: 'ModularPipelines', pkg: 'ModularPipelines', tag: 'Pipelines in C#', h: 235,
+    headline: 'CI/CD pipelines written as C# modules, with dependencies the runner understands.',
+    blurb: 'Each step is a strongly-typed module. Declare what it depends on and independent modules run in parallel. Turn on the flaky broker to see a retry.',
+    code: '[DependsOn<BuildModule>]\npublic class TestModule : Module<CommandResult>\n{\n    protected override async Task<CommandResult?> ExecuteAsync(\n        IPipelineContext context, CancellationToken ct)\n    {\n        return await context.DotNet()\n            .Test(new DotNetTestOptions(), ct);\n    }\n}' },
+  { id: 'dekaf', name: 'Dekaf', pkg: 'Dekaf', tag: 'Kafka client', h: 45,
+    headline: 'Taking the Java out of Kafka.',
+    blurb: 'A Kafka client written in .NET, for .NET. Produce a burst, change the rate, or pause the consumer and watch lag build up per partition.',
+    code: 'await using var producer = Kafka\n    .CreateProducer<string, Order>()\n    .WithBootstrapServers("localhost:9092")\n    .Build();\n\nawait producer.ProduceAsync("orders", order.Id, order);' },
+  { id: 'respire', name: 'Respire', pkg: 'Respire', tag: 'RESP client', h: 15,
+    headline: 'Redis replies come back as the .NET types you expected.',
+    blurb: 'A fast, modern RESP client for Redis, Valkey, KeyDB and other RESP-compatible servers. Run a command and see the typed reply; expiries count down in the keyspace.',
+    code: 'await using var client = await RespireClient\n    .ConnectAsync("localhost:6379");\n\nawait client.SetAsync("session:42", "tom",\n    expiry: TimeSpan.FromSeconds(8));\n\nstring? name = await client.GetAsync("session:42");' },
+  { id: 'kevlar', name: 'Kevlar', pkg: 'Kevlar', tag: 'Resilience', h: 85,
+    headline: 'Retries, circuit breakers and timeouts you can read top to bottom.',
+    blurb: 'Fast, allocation-conscious resilience for .NET: retries, circuit breakers, timeouts, rate limiting, hedging and fallbacks in one fluent API. Raise the failure rate to trip the breaker.',
+    code: 'var shield = Shield\n    .Timeout(TimeSpan.FromSeconds(2))\n    .Retry(2)\n    .CircuitBreaker();\n\nvar order = await shield.ExecuteAsync(\n    ct => orders.GetAsync(id, ct));' },
+  { id: 'bdtest', name: 'BDTest', pkg: 'BDTest', tag: 'BDD testing', h: 335,
+    headline: 'Given / When / Then in plain C#, reported in plain English.',
+    blurb: 'Behaviour-driven testing for .NET. Steps are ordinary methods and the report reads like the spec. Introduce a bug to see how a failure is reported.',
+    code: '[Test]\npublic async Task Checkout_applies_discount()\n{\n    await Given(() => ABasketWith(3, "items"))\n        .When(() => TheDiscountCodeIsApplied("TEN"))\n        .Then(() => TheTotalIsReducedBy(10))\n        .BDTestAsync();\n}' },
 ];
+P.forEach(p => { p.repo = p.name; p.url = 'https://github.com/thomhurst/' + p.repo; p.docs = p.docs || 'https://thomhurst.github.io/' + p.repo + '/'; });
 
-const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const canvas = document.querySelector("canvas");
-const ctx = canvas.getContext("2d");
-const statusEl = document.querySelector(".status");
-let W = 0, H = 0, colors = {};
+// Midnight look: dark page ground, each project's stage tinted by its hue.
+const PG = { ground: 'oklch(0.14 0.006 260)', ink: 'oklch(0.95 0.006 260)', muted: 'oklch(0.66 0.01 260)', tile: 'oklch(0.185 0.008 260)', tileHover: 'oklch(0.22 0.01 260)', tileFg: 'oklch(0.9 0.006 260)', ring: 'transparent', stageBorder: 'transparent' };
+const theme = h => ({ bg: `oklch(0.2 0.018 ${h})`, panel: `oklch(0.15 0.015 ${h})`, line: `oklch(0.33 0.02 ${h})`, accent: `oklch(0.76 0.14 ${h})`, accentDim: `oklch(0.76 0.14 ${h} / .45)`, fg: 'oklch(0.95 0.008 90)', fg2: 'oklch(0.82 0.01 90)', muted: 'oklch(0.66 0.01 90)' });
 
-function readColors() {
-  const s = getComputedStyle(document.documentElement);
-  for (const k of ["ink", "slate", "rule", "cobalt", "fail", "panel", "fog"]) colors[k] = s.getPropertyValue("--" + k).trim();
-}
-readColors();
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readColors(); redrawIfStill(); });
+const fmt = n => n == null ? '—' : n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'k' : String(n);
+const sec = ms => (ms / 1000).toFixed(1) + 's';
+const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const autoplay = !reduceMotion;
 
-function resize() {
-  const r = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  W = r.width; H = r.height;
-  canvas.width = Math.round(W * dpr);
-  canvas.height = Math.round(H * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  if (scene) scene.layout();
-  redrawIfStill();
-}
-new ResizeObserver(resize).observe(canvas);
+// TUnit: 20 tests scheduled across 4 workers or 1.
+const TNAMES = ['Add(1,2,3)', 'Add(2,2,4)', 'Divide_by_zero', 'Retries_on_timeout', 'Circuit_opens', 'Applies_discount', 'Empty_total', 'Produces_message', 'Commits_offset', 'Set_then_get', 'Expiry_respected', 'Modules_parallel', 'DependsOn_waits', 'Rejects_expired', 'Accepts_valid', 'Snapshot_matches', 'Hedges_slow', 'Hybrid_cache', 'Parses_config', 'Serialises_order'];
+const TT = TNAMES.map((n, i) => ({ n, d: 160 + ((i * 137) % 9) * 75 }));
+function sched(lanes) { const free = Array(lanes).fill(0); return TT.map(t => { let l = 0; for (let i = 1; i < lanes; i++) if (free[i] < free[l]) l = i; const s = free[l]; free[l] += t.d; return { ...t, lane: l, start: s }; }); }
+const SCH = { par: sched(4), seq: sched(1) };
+const SPAN = { par: Math.max(...SCH.par.map(t => t.start + t.d)), seq: Math.max(...SCH.seq.map(t => t.start + t.d)) };
 
-const rand = (a, b) => a + Math.random() * (b - a);
-const lerp = (a, b, t) => a + (b - a) * t;
-const ease = (t) => 1 - Math.pow(1 - Math.min(Math.max(t, 0), 1), 3);
-function roundRect(x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h);
-}
-function mono(size, weight = 400) { ctx.font = `${weight} ${size}px "JetBrains Mono", ui-monospace, monospace`; }
+// ModularPipelines: module graph laid out on a 1000x320 canvas.
+const PN = [
+  { id: 'restore', label: 'Restore', sub: 'dotnet restore', x: 0, y: 125, d: [], ms: 600 },
+  { id: 'build', label: 'Build', sub: 'dotnet build', x: 212, y: 125, d: ['restore'], ms: 1100 },
+  { id: 'unit', label: 'Unit tests', sub: 'TUnit', x: 425, y: 20, d: ['build'], ms: 1400 },
+  { id: 'bdd', label: 'Specs', sub: 'BDTest', x: 425, y: 125, d: ['build'], ms: 1000 },
+  { id: 'integ', label: 'Integration', sub: 'Dekaf+Respire', x: 425, y: 230, d: ['build'], ms: 1500 },
+  { id: 'pack', label: 'Pack', sub: 'dotnet pack', x: 637, y: 125, d: ['unit', 'bdd', 'integ'], ms: 700 },
+  { id: 'publish', label: 'Publish', sub: 'NuGet', x: 850, y: 125, d: ['pack'], ms: 600 },
+];
+const idlePipe = () => Object.fromEntries(PN.map(n => [n.id, { s: 'idle' }]));
 
-/* Scenes. Each one has layout(), step(dt) and draw(), and sets status text. */
-const scenes = {
-  // Tests run in parallel across workers and turn solid when they pass.
-  tunit() {
-    let cells = [], cols, rows, size, gap, ox, oy, clock, hold;
-    const workers = 24;
-    function reset() {
-      clock = 0; hold = 0;
-      cells.forEach((c) => { c.state = 0; c.t = 0; c.dur = rand(0.12, 0.9); });
-    }
-    return {
-      layout() {
-        size = Math.max(9, Math.min(18, Math.floor(Math.min(W, H) / 22)));
-        gap = Math.round(size * 0.45);
-        cols = Math.floor((W - 48) / (size + gap));
-        rows = Math.floor((H - 70) / (size + gap));
-        const n = cols * rows;
-        cells = Array.from({ length: n }, () => ({}));
-        ox = (W - (cols * (size + gap) - gap)) / 2;
-        oy = (H - 30 - (rows * (size + gap) - gap)) / 2;
-        reset();
-      },
-      step(dt) {
-        clock += dt;
-        let running = 0, passed = 0;
-        for (const c of cells) {
-          if (c.state === 1) {
-            c.t += dt;
-            if (c.t >= c.dur) { c.state = 2; c.t = 0; }
-          }
-          if (c.state === 1) running++;
-          if (c.state === 2) { passed++; c.t += dt; }
-        }
-        for (let i = 0; i < cells.length && running < workers; i++) {
-          if (cells[i].state === 0) { cells[i].state = 1; cells[i].t = 0; running++; }
-        }
-        if (passed === cells.length) {
-          hold += dt;
-          if (hold > 1.6) reset();
-        }
-        statusEl.textContent = `${passed}/${cells.length} passed  ${running} running  ${(passed === cells.length ? clock - hold : clock).toFixed(2)}s`;
-      },
-      draw() {
-        cells.forEach((c, i) => {
-          const x = ox + (i % cols) * (size + gap), y = oy + Math.floor(i / cols) * (size + gap);
-          roundRect(x, y, size, size, 2.5);
-          if (c.state === 0) { ctx.strokeStyle = colors.rule; ctx.lineWidth = 1.5; ctx.stroke(); }
-          else if (c.state === 1) {
-            ctx.globalAlpha = 0.35 + 0.35 * Math.sin(c.t * 18);
-            ctx.fillStyle = colors.cobalt; ctx.fill(); ctx.globalAlpha = 1;
-          } else {
-            ctx.fillStyle = c.t < 0.25 ? colors.cobalt : colors.ink; ctx.fill();
-          }
-        });
-      },
-    };
-  },
+// Dekaf: keys hash to one of 3 partitions; records take DUR ms to reach the consumer.
+const KEYS = ['order-17', 'user-42', 'cart-9', 'order-88', 'user-3', 'invoice-5', 'cart-61', 'order-204', 'user-77', 'ship-12'];
+const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const DUR = 2800;
 
-  // Modules start as soon as their dependencies finish.
-  pipelines() {
-    const mods = [
-      { id: "Restore", col: 0, row: 1, deps: [] },
-      { id: "Lint", col: 2, row: 0, deps: ["Restore"] },
-      { id: "Build", col: 1, row: 2, deps: ["Restore"] },
-      { id: "UnitTests", col: 2, row: 1, deps: ["Build"] },
-      { id: "IntegrationTests", col: 2, row: 3, deps: ["Build"] },
-      { id: "Pack", col: 3, row: 2, deps: ["UnitTests", "IntegrationTests", "Lint"] },
-      { id: "Publish", col: 4, row: 2, deps: ["Pack"] },
-    ];
-    const byId = Object.fromEntries(mods.map((m) => [m.id, m]));
-    let nw, nh, clock, hold;
-    function reset() {
-      clock = 0; hold = 0;
-      mods.forEach((m) => { m.state = 0; m.t = 0; m.dur = rand(0.7, 1.8); });
-    }
-    reset();
-    return {
-      layout() {
-        nw = Math.min(150, (W - 60) / 5 - 16);
-        nh = Math.max(26, Math.min(36, H / 9));
-        const cw = (W - 40) / 5, rh = (H - 50) / 4;
-        mods.forEach((m) => { m.x = 20 + m.col * cw + (cw - nw) / 2; m.y = 14 + m.row * rh + (rh - nh) / 2; });
-      },
-      step(dt) {
-        clock += dt;
-        let done = 0;
-        for (const m of mods) {
-          if (m.state === 0 && m.deps.every((d) => byId[d].state === 2)) { m.state = 1; m.t = 0; }
-          if (m.state === 1) { m.t += dt; if (m.t >= m.dur) { m.state = 2; m.t = 0; } }
-          else if (m.state === 2) { m.t += dt; done++; }
-        }
-        const active = mods.filter((m) => m.state === 1).map((m) => m.id);
-        if (done === mods.length) { hold += dt; if (hold > 1.8) reset(); }
-        statusEl.textContent = done === mods.length ? `pipeline succeeded in ${(clock - hold).toFixed(1)}s` : `running ${active.join(", ") || "..."}`;
-      },
-      draw() {
-        ctx.lineWidth = 1.5;
-        for (const m of mods) for (const d of m.deps) {
-          const a = byId[d], x1 = a.x + nw, y1 = a.y + nh / 2, x2 = m.x, y2 = m.y + nh / 2, mx = (x1 + x2) / 2;
-          ctx.strokeStyle = a.state === 2 ? colors.slate : colors.rule;
-          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.bezierCurveTo(mx, y1, mx, y2, x2, y2); ctx.stroke();
-          if (a.state === 2 && a.t < 0.6) {
-            const t = ease(a.t / 0.6), u = 1 - t;
-            const px = u*u*u*x1 + 3*u*u*t*mx + 3*u*t*t*mx + t*t*t*x2;
-            const py = u*u*u*y1 + 3*u*u*t*y1 + 3*u*t*t*y2 + t*t*t*y2;
-            ctx.fillStyle = colors.cobalt; ctx.beginPath(); ctx.arc(px, py, 4, 0, 7); ctx.fill();
-          }
-        }
-        // fit the longest module name inside a node
-        mono(Math.max(7, Math.min(12, (nw - 10) / 10)), 500);
-        ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        for (const m of mods) {
-          roundRect(m.x, m.y, nw, nh, 5);
-          ctx.fillStyle = m.state === 2 ? colors.ink : colors.fog; ctx.fill();
-          ctx.strokeStyle = m.state === 1 ? colors.cobalt : m.state === 2 ? colors.ink : colors.rule;
-          ctx.lineWidth = m.state === 1 ? 2 : 1.5; ctx.stroke();
-          if (m.state === 1) {
-            ctx.fillStyle = colors.cobalt; ctx.globalAlpha = 0.18;
-            roundRect(m.x, m.y, nw * Math.min(m.t / m.dur, 1), nh, 5); ctx.fill(); ctx.globalAlpha = 1;
-          }
-          ctx.fillStyle = m.state === 2 ? colors.fog : m.state === 1 ? colors.cobalt : colors.slate;
-          ctx.fillText(m.id, m.x + nw / 2, m.y + nh / 2 + 1);
-        }
-        ctx.textAlign = "start"; ctx.textBaseline = "alphabetic";
-      },
-    };
-  },
+// BDTest: two scenarios; the first can be broken at step failAt.
+const BD = [
+  { title: 'Checkout applies a discount code', steps: [['Given', 'a basket with 3 items totalling £30.00'], ['When', 'the discount code "TEN" is applied'], ['Then', 'the total is £27.00'], ['And', 'the receipt shows "TEN"']], failAt: 2 },
+  { title: 'An empty basket costs nothing', steps: [['Given', 'an empty basket'], ['When', 'the total is calculated'], ['Then', 'the total is £0.00']] },
+];
+const BDFLAT = BD.flatMap((s, si) => s.steps.map((st, i) => ({ si, i })));
 
-  // A producer appends records to partitions; a consumer reads them off the end.
-  dekaf() {
-    const lanes = 4;
-    let msgs = [], next = [0, 0, 0, 0], consumed = 0, x0, x1, laneY, laneH, spawn = 0;
-    return {
-      layout() {
-        x0 = 70; x1 = W - 70;
-        laneH = Math.min(46, (H - 80) / lanes);
-        const top = (H - 30 - lanes * laneH * 1.35) / 2;
-        laneY = Array.from({ length: lanes }, (_, i) => top + i * laneH * 1.35);
-      },
-      step(dt) {
-        spawn -= dt;
-        while (spawn <= 0) {
-          spawn += rand(0.05, 0.16);
-          const lane = Math.floor(Math.random() * lanes);
-          const tail = msgs.find((o) => o.lane === lane && o.offset === next[lane] - 1);
-          if (!tail || tail.x > x0 + laneH) msgs.push({ lane, x: x0, offset: next[lane]++, v: rand(150, 230) });
-        }
-        const w = laneH * 0.7;
-        for (let i = msgs.length - 1; i >= 0; i--) {
-          const m = msgs[i];
-          // keep a gap behind the record ahead in the same partition
-          const ahead = msgs.find((o) => o !== m && o.lane === m.lane && o.offset === m.offset - 1);
-          const limit = ahead ? ahead.x - w - 4 : Infinity;
-          m.x = Math.min(m.x + m.v * dt, limit);
-          if (m.x > x1 - w) { msgs.splice(i, 1); consumed++; }
-        }
-        statusEl.textContent = `topic orders  ${lanes} partitions  ${consumed.toLocaleString("en-GB")} records consumed`;
-      },
-      draw() {
-        const w = laneH * 0.7;
-        mono(10, 500); ctx.textBaseline = "middle";
-        laneY.forEach((y, i) => {
-          ctx.strokeStyle = colors.rule; ctx.lineWidth = 1.5;
-          roundRect(x0 - 4, y - 4, x1 - x0 + 8, laneH + 8, 6); ctx.stroke();
-          ctx.fillStyle = colors.slate; ctx.textAlign = "right";
-          ctx.fillText(`p${i}`, x0 - 12, y + laneH / 2);
-          ctx.textAlign = "left";
-          ctx.fillText(`${next[i]}`, x1 + 12, y + laneH / 2);
-        });
-        for (const m of msgs) {
-          const y = laneY[m.lane];
-          roundRect(m.x, y + (laneH - w) / 2, w, w, 3);
-          ctx.fillStyle = m.x > x1 - w * 3 ? colors.cobalt : colors.ink; ctx.fill();
-        }
-        ctx.textBaseline = "alphabetic"; ctx.textAlign = "start";
-      },
-    };
-  },
-
-  // Given / When / Then steps type out and pass, then the report updates.
-  bdtest() {
-    const scenarios = [
-      ["Given a basket with 2 items", "When the customer checks out", "Then an order is created", "And a receipt is emailed"],
-      ["Given an expired discount code", "When it is applied to the basket", "Then the total is unchanged", "And a warning is shown"],
-      ["Given a registered customer", "When they reset their password", "Then a reset link is sent"],
-    ];
-    let s = 0, line = 0, chars = 0, pause = 0, passed = 0;
-    return {
-      layout() {},
-      step(dt) {
-        const steps = scenarios[s];
-        if (pause > 0) { pause -= dt; if (pause <= 0 && line >= steps.length) { s = (s + 1) % scenarios.length; line = 0; chars = 0; } return; }
-        chars += dt * 38;
-        if (chars >= steps[line].length) {
-          chars = steps[line].length;
-          line++; chars = 0;
-          pause = line >= steps.length ? 2.2 : 0.35;
-          if (line >= steps.length) passed++;
-        }
-        statusEl.textContent = `${passed} scenarios passed`;
-      },
-      draw() {
-        const steps = scenarios[s];
-        const size = Math.max(12, Math.min(22, W / 30));
-        const x = Math.max(24, W * 0.08), lh = size * 2.1;
-        let y = (H - 30 - (steps.length + 1.5) * lh) / 2 + size;
-        mono(size * 0.8, 500); ctx.fillStyle = colors.slate;
-        ctx.fillText(`Scenario ${s + 1}`, x, y); y += lh * 1.2;
-        steps.forEach((text, i) => {
-          if (i > line) return;
-          const shown = i < line ? text : text.slice(0, Math.floor(chars));
-          const [kw, ...rest] = shown.split(" ");
-          mono(size, 500);
-          ctx.fillStyle = colors.cobalt; ctx.fillText(kw, x + size * 1.8, y);
-          const kwW = ctx.measureText(kw + " ").width;
-          mono(size, 400);
-          ctx.fillStyle = colors.ink; ctx.fillText(rest.join(" "), x + size * 1.8 + kwW, y);
-          if (i < line) {
-            ctx.strokeStyle = colors.ink; ctx.lineWidth = 2; ctx.beginPath();
-            ctx.moveTo(x, y - size * 0.35); ctx.lineTo(x + size * 0.35, y); ctx.lineTo(x + size * 0.95, y - size * 0.75); ctx.stroke();
-          } else if (Math.floor(performance.now() / 400) % 2) {
-            ctx.fillStyle = colors.cobalt;
-            ctx.fillRect(x + size * 1.8 + ctx.measureText(shown).width + 2, y - size * 0.8, size * 0.5, size);
-          }
-          y += lh;
-        });
-      },
-    };
-  },
-
-  // Pipelined commands travel to the server and replies come back.
-  respire() {
-    const cmds = [
-      ["GET user:1", "User { Ada, 36 }"], ["SET cart:9", "OK"], ["INCR visits", "1,024"],
-      ["HGET order:3 total", "42.50"], ["EXPIRE session:7 300", "1"], ["GET user:2", "User { Lin, 29 }"],
-    ];
-    let packets = [], spawn = 0, done = 0, xc, xs, keys = [], k = 0;
-    return {
-      layout() {
-        xc = Math.max(40, W * 0.12); xs = W - Math.max(40, W * 0.12);
-        keys = Array.from({ length: 12 }, (_, i) => ({ i, glow: 0 }));
-      },
-      step(dt) {
-        spawn -= dt;
-        if (spawn <= 0) {
-          spawn = rand(0.45, 0.8);
-          const [req, res] = cmds[k++ % cmds.length];
-          packets.push({ req, res, t: 0, lane: k % 5, key: Math.floor(Math.random() * 12) });
-        }
-        for (let i = packets.length - 1; i >= 0; i--) {
-          const p = packets[i];
-          const before = p.t;
-          p.t += dt / 2.6;
-          if (before < 0.5 && p.t >= 0.5) keys[p.key].glow = 1;
-          if (p.t >= 1) { packets.splice(i, 1); done++; }
-        }
-        keys.forEach((kk) => (kk.glow = Math.max(0, kk.glow - dt * 1.5)));
-        statusEl.textContent = `${packets.length} in flight  ${done.toLocaleString("en-GB")} replies`;
-      },
-      draw() {
-        const top = 50, bottom = H - 50;
-        const fs = Math.max(11, Math.min(14, W / 46));
-        // client and server columns
-        ctx.strokeStyle = colors.rule; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(xc, top); ctx.lineTo(xc, bottom); ctx.stroke();
-        mono(fs, 500); ctx.fillStyle = colors.slate; ctx.textAlign = "center";
-        ctx.fillText("app", xc, top - 18);
-        ctx.fillText("redis", xs, top - 18);
-        const cols = 3, cell = Math.min(22, (bottom - top) / 6), gx = xs - (cols * (cell + 5)) / 2;
-        const gy = (top + bottom) / 2 - (4 * (cell + 5)) / 2;
-        keys.forEach((kk) => {
-          const x = gx + (kk.i % cols) * (cell + 5), y = gy + Math.floor(kk.i / cols) * (cell + 5);
-          roundRect(x, y, cell, cell, 3);
-          ctx.fillStyle = kk.glow > 0 ? colors.cobalt : colors.ink;
-          ctx.globalAlpha = 0.25 + 0.75 * kk.glow; ctx.fill(); ctx.globalAlpha = 1;
-        });
-        const left = xc + 14, right = gx - 14;
-        for (const p of packets) {
-          const y = top + 16 + p.lane * ((bottom - top - 32) / 4);
-          const out = p.t < 0.5, u = ease(out ? p.t * 2 : (p.t - 0.5) * 2);
-          const x = out ? lerp(left, right, u) : lerp(right, left, u);
-          const label = out ? p.req : p.res;
-          ctx.textAlign = out ? "right" : "left";
-          ctx.fillStyle = out ? colors.ink : colors.cobalt;
-          ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fill();
-          ctx.globalAlpha = Math.min(1, Math.sin(u * Math.PI) * 3);
-          ctx.fillText(label, out ? x - 10 : x + 10, y + 4);
-          ctx.globalAlpha = 1;
-        }
-        ctx.textAlign = "start";
-      },
-    };
-  },
-
-  // Calls go through the shield; failures are retried and enough of them open the circuit.
-  kevlar() {
-    let calls = [], spawn = 0, xs, xsh, xsvc, ok = 0, retries = 0, breaker = "closed", fails = 0, openFor = 0, outage = 0;
-    return {
-      layout() { xs = 30; xsh = W * 0.42; xsvc = W - 90; },
-      step(dt) {
-        // the service has occasional bad spells
-        outage -= dt;
-        if (outage < -6) outage = rand(1.8, 2.8);
-        const failRate = outage > 0 ? 0.85 : 0.12;
-        if (breaker === "open") { openFor -= dt; if (openFor <= 0) breaker = "half-open"; }
-        spawn -= dt;
-        if (spawn <= 0) { spawn = rand(0.18, 0.35); calls.push({ x: xs, y: rand(0.15, 0.85), dir: 1, attempt: 1, state: "out", t: 0 }); }
-        for (let i = calls.length - 1; i >= 0; i--) {
-          const c = calls[i];
-          c.t += dt;
-          if (c.state === "out") {
-            c.x += 260 * dt;
-            if (breaker === "open" && c.x >= xsh && c.x < xsh + 8) { c.state = "rejected"; c.t = 0; }
-            else if (c.x >= xsvc) {
-              if (Math.random() < failRate) {
-                c.state = "back"; fails++;
-                if (fails >= 4 && breaker !== "open") { breaker = "open"; openFor = 2.2; fails = 0; }
-              } else { c.state = "done"; c.t = 0; ok++; fails = 0; if (breaker === "half-open") breaker = "closed"; }
-            }
-          } else if (c.state === "back") {
-            c.x -= 320 * dt;
-            if (c.x <= xsh) {
-              if (c.attempt < 3) { c.attempt++; retries++; c.state = "out"; }
-              else { c.state = "rejected"; c.t = 0; }
-            }
-          } else if (c.t > 0.5) calls.splice(i, 1);
-        }
-        statusEl.textContent = `circuit ${breaker}  ${ok} succeeded  ${retries} retries`;
-      },
-      draw() {
-        const top = 50, h = H - 100;
-        mono(Math.max(11, Math.min(14, W / 46)), 500); ctx.fillStyle = colors.slate; ctx.textAlign = "center";
-        ctx.fillText("calls", xs + 30, top - 18);
-        ctx.fillText(breaker === "closed" ? "shield" : `circuit ${breaker}`, xsh - 20, top - 18);
-        ctx.fillText(outage > 0 ? "service failing" : "service", xsvc + 13, top - 18);
-        ctx.textAlign = "start";
-        // service
-        roundRect(xsvc, top, 26, h, 5);
-        ctx.fillStyle = outage > 0 ? colors.fail : colors.ink; ctx.globalAlpha = 0.85; ctx.fill(); ctx.globalAlpha = 1;
-        // shield
-        ctx.strokeStyle = breaker === "open" ? colors.fail : colors.cobalt;
-        ctx.lineWidth = breaker === "open" ? 5 : 3;
-        ctx.setLineDash(breaker === "half-open" ? [8, 8] : []);
-        ctx.beginPath(); ctx.ellipse(xsh - 40, top + h / 2, 40, h / 2, 0, -Math.PI / 2, Math.PI / 2); ctx.stroke();
-        ctx.setLineDash([]);
-        for (const c of calls) {
-          const y = top + c.y * h, fade = c.state === "done" || c.state === "rejected" ? 1 - c.t / 0.5 : 1;
-          ctx.globalAlpha = Math.max(0, fade);
-          ctx.fillStyle = c.state === "back" || c.state === "rejected" ? colors.fail : c.state === "done" ? colors.cobalt : colors.ink;
-          ctx.beginPath(); ctx.arc(c.x, y, 3 + c.attempt * 1.5, 0, 7); ctx.fill();
-          ctx.globalAlpha = 1;
-        }
-      },
-    };
-  },
-};
-
-/* Tabs */
-const tablist = document.querySelector(".tabs");
-const stage = document.getElementById("stage");
-const copy = document.querySelector(".copy");
-let current = -1, scene = null, auto = !reduceMotion, autoT = 0;
-const AUTO_SECONDS = 8;
-
-projects.forEach((p, i) => {
-  const b = document.createElement("button");
-  b.className = "tab";
-  b.id = `tab-${p.repo}`;
-  b.setAttribute("role", "tab");
-  b.setAttribute("aria-controls", "stage");
-  b.innerHTML = `<span class="tab-name">${p.name}</span><span class="tab-stars"><span data-stars>${p.stars.toLocaleString("en-GB")}</span> stars</span><span class="tab-progress"></span>`;
-  b.addEventListener("click", () => { stopAuto(); select(i); });
-  b.addEventListener("keydown", (e) => {
-    const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
-    if (d) { e.preventDefault(); stopAuto(); select((current + d + projects.length) % projects.length, true); }
-  });
-  tablist.appendChild(b);
-});
-tablist.addEventListener("pointerenter", stopAuto);
-stage.addEventListener("pointerenter", stopAuto);
-
-function stopAuto() {
-  auto = false;
-  document.querySelectorAll(".tab-progress").forEach((el) => (el.style.transform = "scaleX(0)"));
-}
-
-function select(i, focus) {
-  if (i === current) return;
-  current = i; autoT = 0;
-  const p = projects[i];
-  document.querySelectorAll(".tab").forEach((b, j) => {
-    b.setAttribute("aria-selected", String(j === i));
-    b.tabIndex = j === i ? 0 : -1;
-    b.querySelector(".tab-progress").style.transform = "scaleX(0)";
-    if (j === i && focus) b.focus();
-  });
-  stage.setAttribute("aria-labelledby", `tab-${p.repo}`);
-  const fill = () => {
-    copy.querySelector("h2").textContent = p.title;
-    copy.querySelector("p").textContent = p.text;
-    copy.querySelector("code").textContent = p.code;
-    copy.querySelector("[data-docs]").href = p.docs;
-    copy.querySelector("[data-source]").href = `https://github.com/thomhurst/${p.repo}`;
-    copy.classList.remove("swap");
+class Portfolio {
+  state = {
+    sel: P.some(p => p.id === ls.get('tl-portfolio-sel')) ? ls.get('tl-portfolio-sel') : 'tunit',
+    gh: {}, ng: {}, statsStatus: 'loading', copied: false,
+    tuMode: 'par', tuT: 0, tuRun: false,
+    pst: idlePipe(), plog: [{ t: '> ready', c: 'muted' }], pRunning: false, flaky: true, pNow: 0,
+    dkMsgs: [], dkProd: [0, 0, 0], dkCons: [0, 0, 0], dkRate: 6, dkPaused: false, dkNow: Date.now(),
+    rsStore: { 'page:views': { v: 41, type: 'long' }, 'user:1:name': { v: 'Tom', type: 'string' } }, rsLog: [], rsInput: '', rsNow: Date.now(),
+    kvCells: [], kvCircuit: 'closed', kvFail: 35, kvWin: [], kvN: { ok: 0, retried: 0, failed: 0, short: 0 },
+    bdIdx: -1, bdRun: false, bdBroken: false, bdMs: [],
   };
-  if (reduceMotion || !copy.querySelector("h2").textContent) fill();
-  else { copy.classList.add("swap"); setTimeout(fill, 180); }
-  scene = scenes[p.scene]();
-  if (W) scene.layout();
-  if (reduceMotion) settle();
-}
+  mid = 0; kvAcc = 0; bdAcc = 0;
 
-// With reduced motion, run each scene forward and show one still frame.
-function settle() {
-  for (let k = 0; k < 240; k++) scene.step(1 / 60);
-  draw();
-}
-function redrawIfStill() { if (reduceMotion && scene) draw(); }
-
-function draw() {
-  ctx.clearRect(0, 0, W, H);
-  scene.draw();
-}
-
-let last = performance.now();
-function frame(now) {
-  const dt = Math.min((now - last) / 1000, 0.05);
-  last = now;
-  if (scene && W) { scene.step(dt); draw(); }
-  if (auto) {
-    autoT += dt;
-    document.querySelector('.tab[aria-selected="true"] .tab-progress').style.transform = `scaleX(${Math.min(autoT / AUTO_SECONDS, 1)})`;
-    if (autoT >= AUTO_SECONDS) select((current + 1) % projects.length);
+  constructor(root) {
+    this.root = root;
+    this.render();
+    this.loadStats();
+    this.int = setInterval(() => this.tick(), 50);
+    this.autostart(this.state.sel);
   }
-  requestAnimationFrame(frame);
+
+  setState(patch) {
+    Object.assign(this.state, typeof patch === 'function' ? patch(this.state) : patch);
+    if (!this.queued) { this.queued = true; queueMicrotask(() => { this.queued = false; this.render(); }); }
+  }
+
+  async loadStats() {
+    const key = 'tl-portfolio-stats-v1';
+    let gh = {}, ng = {};
+    try { const c = JSON.parse(ls.get(key) || 'null'); if (c && Date.now() - c.t < 3600e3) { gh = c.gh || {}; ng = c.ng || {}; if (P.every(p => gh[p.id] != null && ng[p.id] != null)) return this.setState({ gh, ng, statsStatus: 'live' }); } } catch (e) {}
+    await Promise.all(P.map(async p => {
+      if (gh[p.id] == null) try { const r = await fetch('https://api.github.com/repos/thomhurst/' + p.repo); if (r.ok) gh[p.id] = (await r.json()).stargazers_count; } catch (e) {}
+      if (ng[p.id] == null) try { const r = await fetch('https://azuresearch-usnc.nuget.org/query?q=packageid:' + p.pkg + '&prerelease=true&take=1'); if (r.ok) { const j = await r.json(); if (j.data && j.data[0]) ng[p.id] = j.data[0].totalDownloads; } } catch (e) {}
+    }));
+    const ok = Object.keys(gh).length + Object.keys(ng).length > 0;
+    this.setState({ gh, ng, statsStatus: ok ? 'live' : 'error' });
+    if (ok) ls.set(key, JSON.stringify({ t: Date.now(), gh, ng }));
+    if (P.some(p => gh[p.id] == null || ng[p.id] == null) && !this.statsRetried) { this.statsRetried = true; setTimeout(() => this.loadStats(), 4000); }
+  }
+
+  select(id) {
+    this.setState({ sel: id, copied: false });
+    ls.set('tl-portfolio-sel', id);
+    this.autostart(id);
+  }
+  autostart(id) {
+    if (!autoplay) return;
+    if (id === 'tunit') this.tuStart();
+    if (id === 'modularpipelines') this.runPipe();
+    if (id === 'bdtest') this.bdStart();
+    if (id === 'respire' && !this.state.rsLog.length) setTimeout(() => this.rsExec('SET session:42 "tom" EX 8'), 300);
+  }
+
+  tick() {
+    const s = this.state, now = Date.now();
+    if (s.sel === 'tunit' && s.tuRun) { const t = s.tuT + 100; this.setState({ tuT: Math.min(t, SPAN[s.tuMode]), tuRun: t < SPAN[s.tuMode] }); }
+    if (s.sel === 'modularpipelines' && s.pRunning) this.pipeTick(now);
+    if (s.sel === 'dekaf') this.dkTick(now);
+    if (s.sel === 'respire') this.rsTick(now);
+    if (s.sel === 'kevlar' && (this.kvAcc += 50) >= 300) { this.kvAcc = 0; this.kvTick(now); }
+    if (s.sel === 'bdtest' && s.bdRun && (this.bdAcc += 50) >= 420) { this.bdAcc = 0; this.bdTick(); }
+  }
+
+  tuStart = () => this.setState({ tuT: 0, tuRun: true });
+
+  runPipe = () => { this.pStart = Date.now(); this.setState({ pst: idlePipe(), plog: [{ t: '> dotnet run --project Release.Pipeline', c: 'muted' }], pRunning: true, pNow: Date.now() }); };
+  pipeTick(now) {
+    const st = { ...this.state.pst }, log = [...this.state.plog];
+    for (const n of PN) {
+      const s = st[n.id];
+      if (s.s === 'run' && now >= s.end) {
+        if (n.id === 'integ' && this.state.flaky && !s.retried) { st[n.id] = { ...s, s: 'retry', end: now + 800, retried: true }; log.push({ t: '✕ Integration: broker timeout', c: 'red' }, { t: '↻ retry 1/3 in 800ms', c: 'amber' }); }
+        else { st[n.id] = { ...s, s: 'done' }; log.push({ t: '✓ ' + n.label + ' ' + sec(now - s.t0), c: 'green' }); }
+      } else if (s.s === 'retry' && now >= s.end) st[n.id] = { ...s, s: 'run', a: now, end: now + n.ms * 0.7 };
+    }
+    for (const n of PN) if (st[n.id].s === 'idle' && n.d.every(d => st[d].s === 'done')) { st[n.id] = { s: 'run', t0: now, a: now, end: now + n.ms * (0.8 + Math.random() * 0.4) }; log.push({ t: '▸ ' + n.label, c: 'muted' }); }
+    const all = PN.every(n => st[n.id].s === 'done');
+    if (all) log.push({ t: 'Pipeline succeeded in ' + sec(now - this.pStart), c: 'acc' });
+    this.setState({ pst: st, plog: log.slice(-12), pRunning: !all, pNow: now });
+  }
+
+  spawn(arr, prod, born) { const key = KEYS[Math.floor(Math.random() * KEYS.length)], p = hash(key) % 3; arr.push({ id: ++this.mid, p, key, off: prod[p], born }); prod[p]++; }
+  dkTick(now) {
+    const dt = now - (this.dkLast || now); this.dkLast = now;
+    let msgs = this.state.dkMsgs.slice(); const prod = this.state.dkProd.slice(), cons = this.state.dkCons.slice();
+    this.dkAcc = Math.min(5, (this.dkAcc || 0) + dt * this.state.dkRate / 1000);
+    while (this.dkAcc >= 1) { this.dkAcc--; this.spawn(msgs, prod, now); }
+    if (!this.state.dkPaused) { const keep = []; for (const m of msgs) { if (now - m.born >= DUR) cons[m.p]++; else keep.push(m); } msgs = keep; }
+    this.setState({ dkMsgs: msgs.slice(-150), dkProd: prod, dkCons: cons, dkNow: now });
+  }
+  dkBurst = () => { const msgs = this.state.dkMsgs.slice(), prod = this.state.dkProd.slice(), now = Date.now(); for (let i = 0; i < 12; i++) this.spawn(msgs, prod, now + i * 90); this.setState({ dkMsgs: msgs, dkProd: prod }); };
+
+  rsTick(now) {
+    const st = this.state.rsStore; let changed = false; const next = {};
+    for (const k in st) { if (st[k].exp && st[k].exp <= now) { changed = true; continue; } next[k] = st[k]; }
+    this.setState(changed ? { rsStore: next, rsNow: now } : { rsNow: now });
+  }
+  rsExec(raw) {
+    const cmd = raw.trim(); if (!cmd) return;
+    const toks = cmd.match(/"[^"]*"|\S+/g) || []; const op = (toks[0] || '').toUpperCase(); const a = toks.slice(1).map(t => t.replace(/^"|"$/g, ''));
+    const now = Date.now(), st = { ...this.state.rsStore }; let type, val;
+    const live = k => st[k] && (!st[k].exp || st[k].exp > now) ? st[k] : null;
+    if (op === 'SET' && a.length >= 2) { const ex = a[2] && a[2].toUpperCase() === 'EX' ? +a[3] : 0; st[a[0]] = { v: a[1], type: 'string', exp: ex ? now + ex * 1000 : null, ttl: ex * 1000 }; type = 'bool'; val = 'true'; }
+    else if (op === 'GET' && a[0]) { const e = live(a[0]); type = 'string?'; val = e ? '"' + e.v + '"' : 'null'; }
+    else if (op === 'INCR' && a[0]) { const e = live(a[0]); const n = (e ? +e.v : 0) + 1; if (isNaN(n)) { type = 'error'; val = 'value is not an integer'; } else { st[a[0]] = { ...(e || {}), v: n, type: 'long' }; type = 'long'; val = String(n); } }
+    else if (op === 'DEL' && a[0]) { type = 'bool'; val = String(!!live(a[0])); delete st[a[0]]; }
+    else if (op === 'EXPIRE' && a[1]) { const e = live(a[0]); type = 'bool'; val = String(!!e); if (e) st[a[0]] = { ...e, exp: now + a[1] * 1000, ttl: a[1] * 1000 }; }
+    else if (op === 'TTL' && a[0]) { const e = live(a[0]); type = 'TimeSpan?'; val = e && e.exp ? '00:00:' + String(Math.ceil((e.exp - now) / 1000)).padStart(2, '0') : 'null'; }
+    else if (op === 'KEYS') { type = 'string[]'; val = '[' + Object.keys(st).filter(live).map(k => '"' + k + '"').join(', ') + ']'; }
+    else { type = 'error'; val = 'try SET, GET, INCR, DEL, EXPIRE, TTL, KEYS'; }
+    this.setState(s => ({ rsStore: st, rsInput: '', rsLog: [...s.rsLog, { a: '>', b: cmd, k: 'cmd' }, { a: type, b: val, k: type === 'error' ? 'err' : 'rep' }].slice(-18) }));
+  }
+
+  kvTick(now) {
+    const s = this.state, p = s.kvFail / 100;
+    let circuit = s.kvCircuit, win = s.kvWin, out;
+    const n = { ...s.kvN };
+    if (circuit === 'open' && now < this.kvOpenUntil) out = 'short';
+    else {
+      if (circuit === 'open') circuit = 'half';
+      if (circuit === 'half') { const ok = Math.random() > p; out = ok ? 'ok' : 'failed'; if (ok) { circuit = 'closed'; win = []; } else { circuit = 'open'; this.kvOpenUntil = now + 2400; } }
+      else {
+        let tries = 0, ok = false; while (tries < 3 && !ok) { ok = Math.random() > p; tries++; }
+        out = ok ? (tries === 1 ? 'ok' : 'retried') : 'failed';
+        win = [...win, !ok].slice(-8);
+        if (win.filter(Boolean).length >= 4) { circuit = 'open'; this.kvOpenUntil = now + 2400; win = []; }
+      }
+    }
+    n[out]++;
+    this.setState({ kvCircuit: circuit, kvWin: win, kvN: n, kvCells: [...s.kvCells, out].slice(-60) });
+  }
+
+  bdStart = () => { this.bdAcc = 0; this.setState({ bdIdx: 0, bdRun: true, bdMs: [] }); };
+  bdTick() {
+    const s = this.state; let i = s.bdIdx; const ms = [...s.bdMs];
+    ms[i] = Math.round(3 + Math.random() * 40); i++;
+    if (s.bdBroken && BDFLAT[i - 1] && BDFLAT[i - 1].si === 0 && BDFLAT[i - 1].i === BD[0].failAt) { while (BDFLAT[i] && BDFLAT[i].si === 0) i++; }
+    this.setState({ bdIdx: i, bdMs: ms, bdRun: i < BDFLAT.length });
+  }
+
+  vals() {
+    const s = this.state, cur0 = P.find(p => p.id === s.sel) || P[0];
+    const stg = theme(cur0.h), acc = stg.accent;
+    const projects = P.map((p, i) => {
+      const on = p.id === s.sel, t = theme(p.h);
+      return { ...p, on, num: String(i + 1).padStart(2, '0'), stars: fmt(s.gh[p.id]), dl: fmt(s.ng[p.id]), accent: t.accent,
+        tileBg: on ? t.bg : PG.tile, tileFg: on ? t.fg : PG.tileFg, tileHover: on ? t.bg : PG.tileHover, tileRing: on ? t.accent : PG.ring };
+    });
+    const ci = P.indexOf(cur0), cur = projects[ci], nxt = P[(ci + 1) % P.length];
+    const sum = o => { const v = Object.values(o); return v.length ? v.reduce((a, b) => a + b, 0) : null; };
+
+    const mode = s.tuMode, t = s.tuT, dom = SPAN.seq;
+    const tuLanes = Array.from({ length: mode === 'par' ? 4 : 1 }, (_, l) => ({
+      label: mode === 'par' ? 'worker ' + (l + 1) : 'sequential',
+      blocks: SCH[mode].filter(b => b.lane === l && b.start < t).map(b => ({ n: b.n, left: (b.start / dom * 100) + '%', width: (Math.min(b.d, t - b.start) / dom * 100) + '%', bg: t >= b.start + b.d ? acc : stg.accentDim })),
+    }));
+    const segOn = { bg: acc, fg: stg.bg }, segOff = { bg: 'transparent', fg: stg.fg2 };
+
+    const C3 = { green: 'oklch(0.78 0.15 155)', amber: 'oklch(0.8 0.14 75)', red: 'oklch(0.7 0.17 25)', muted: stg.muted, acc };
+    const pNodes = PN.map(n => {
+      const st = s.pst[n.id];
+      const border = st.s === 'done' ? C3.green : st.s === 'run' ? acc : st.s === 'retry' ? C3.amber : stg.line;
+      const pct = st.s === 'done' ? '100%' : st.s === 'run' ? Math.min(100, ((s.pNow - st.a) / (st.end - st.a)) * 100) + '%' : '0%';
+      return { ...n, left: n.x / 10 + '%', top: n.y / 320 * 100 + '%', border, pct, subColor: st.s === 'retry' ? C3.amber : C3.muted, sub: st.s === 'retry' ? 'retrying…' : n.sub };
+    });
+    const byId = Object.fromEntries(PN.map(n => [n.id, n]));
+    const pEdges = PN.flatMap(n => n.d.map(d => { const a = byId[d], x1 = a.x + 150, y1 = a.y + 35, x2 = n.x, y2 = n.y + 35, mx = (x1 + x2) / 2; return { d: `M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`, color: s.pst[d].s === 'done' ? acc : stg.line }; }));
+
+    const dkMsgs = s.dkMsgs.map(m => { const age = s.dkNow - m.born, x = Math.max(0, Math.min(age / DUR, s.dkPaused ? 0.97 : 1)); return { key: m.key, off: m.off, left: `calc(${14 + x * 72}% - ${x * 40}px)`, top: m.p * 72 + 16, op: age < 0 ? 0 : 1 }; });
+    const dkParts = [0, 1, 2].map(i => { const lag = s.dkProd[i] - s.dkCons[i]; return { i, top: i * 72, prod: s.dkProd[i], lag, lagColor: lag > 8 ? 'oklch(0.72 0.17 25)' : stg.fg2 }; });
+
+    const rsKeys = Object.entries(s.rsStore).map(([k, e]) => ({ key: k, val: e.type === 'string' ? '"' + e.v + '"' : String(e.v), ttl: e.exp ? Math.max(0, (e.exp - s.rsNow) / 1000).toFixed(1) + 's' : 'no expiry', pct: e.exp ? Math.max(0, (e.exp - s.rsNow) / e.ttl * 100) + '%' : '100%' }));
+    const rsLog = s.rsLog.map(l => ({ a: l.a, b: l.b, c1: l.k === 'cmd' ? acc : l.k === 'err' ? 'oklch(0.72 0.17 25)' : stg.muted, c2: l.k === 'cmd' ? stg.fg : l.k === 'err' ? 'oklch(0.72 0.17 25)' : acc }));
+    const rsChips = ['SET session:42 "tom" EX 8', 'GET session:42', 'INCR page:views', 'TTL session:42', 'DEL user:1:name', 'KEYS *'];
+
+    const kvMap = { ok: [acc, acc], retried: ['oklch(0.72 0.15 45)', 'oklch(0.72 0.15 45)'], failed: ['oklch(0.62 0.18 25)', 'oklch(0.62 0.18 25)'], short: ['transparent', stg.muted] };
+    const kvCells = Array.from({ length: 60 }, (_, i) => { const o = s.kvCells[i - (60 - s.kvCells.length)]; const c = o ? kvMap[o] : [stg.panel, 'transparent']; return { bg: c[0], ring: c[1] }; });
+    const kvSt = k => { const on = s.kvCircuit === k, col = k === 'closed' ? acc : k === 'open' ? 'oklch(0.62 0.18 25)' : 'oklch(0.72 0.15 45)'; return { b: on ? col : stg.line, bg: on ? col : 'transparent', fg: on ? stg.bg : stg.muted }; };
+
+    let flat = 0;
+    const bdScen = BD.map((sc, si) => {
+      let failed = false, done = true;
+      const steps = sc.steps.map(([kw, text], i) => {
+        const idx = flat++, past = idx < s.bdIdx, isFail = s.bdBroken && si === 0 && i === sc.failAt;
+        const skipped = s.bdBroken && si === 0 && i > sc.failAt && s.bdIdx > idx - (i - sc.failAt);
+        let icon = '·', color = stg.muted, op = 0.45, ms = '';
+        if (past && isFail) { icon = '✕'; color = 'oklch(0.7 0.17 25)'; op = 1; ms = s.bdMs[idx] + 'ms'; failed = true; }
+        else if (past && !(s.bdBroken && si === 0 && i > sc.failAt)) { icon = '✓'; color = acc; op = 1; ms = s.bdMs[idx] + 'ms'; }
+        else if (skipped && failed) { icon = '–'; op = 0.6; ms = 'skipped'; }
+        else if (idx === s.bdIdx && s.bdRun) { icon = '▸'; color = acc; op = 1; done = false; }
+        else done = false;
+        return { kw, text, icon, color, op, ms };
+      });
+      const status = s.bdIdx < 0 ? 'Not run' : failed ? 'Failed' : done ? 'Passed' : 'Running';
+      return { title: sc.title, steps, status, err: failed ? 'Expected the total to be £27.00 but it was £30.00' : '',
+        pillBg: failed ? 'oklch(0.62 0.18 25)' : status === 'Passed' ? acc : stg.panel, pillFg: failed || status === 'Passed' ? stg.bg : stg.fg2 };
+    });
+
+    return {
+      s, projects, cur, stg, acc, nxt,
+      totStars: fmt(sum(s.gh)), totDl: fmt(sum(s.ng)),
+      statsNote: s.statsStatus === 'live' ? 'live · GitHub + NuGet' : s.statsStatus === 'loading' ? 'fetching live stats…' : 'live stats unavailable',
+      tuLanes, tuPassed: SCH[mode].filter(b => t >= b.start + b.d).length, tuTime: sec(t),
+      tuParBg: mode === 'par' ? segOn.bg : segOff.bg, tuParFg: mode === 'par' ? segOn.fg : segOff.fg, tuSeqBg: mode === 'seq' ? segOn.bg : segOff.bg, tuSeqFg: mode === 'seq' ? segOn.fg : segOff.fg,
+      C3, pNodes, pEdges, dkMsgs, dkParts, rsKeys, rsLog, rsChips, kvCells, kc: kvSt('closed'), ko: kvSt('open'), kh: kvSt('half'), bdScen,
+    };
+  }
+
+  render() {
+    const v = this.vals(), { s, stg, cur, acc } = v;
+    const mono = "'Martian Mono',monospace";
+    const btnOutline = `border:1px solid ${acc};background:transparent;color:${acc};border-radius:6px;padding:8px 14px;cursor:pointer;font:500 12px ${mono};white-space:nowrap`;
+
+    const tunit = () => html`
+      <div class="demo" style="border:1px solid ${stg.line};border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;gap:6px;background:${stg.panel};padding:4px;border-radius:8px" role="group" aria-label="Execution mode">
+            <button aria-pressed=${s.tuMode === 'par'} @click=${() => this.setState({ tuMode: 'par', tuT: 0, tuRun: true })} style="border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font:500 12px ${mono};background:${v.tuParBg};color:${v.tuParFg}">Parallel (default)</button>
+            <button aria-pressed=${s.tuMode === 'seq'} @click=${() => this.setState({ tuMode: 'seq', tuT: 0, tuRun: true })} style="border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font:500 12px ${mono};background:${v.tuSeqBg};color:${v.tuSeqFg}">[NotInParallel]</button>
+          </div>
+          <button @click=${this.tuStart} style="${btnOutline};flex-shrink:0">${s.tuRun ? 'running…' : '↻ run again'}</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;min-height:166px;justify-content:center">
+          ${v.tuLanes.map(ln => html`
+            <div style="display:grid;grid-template-columns:80px minmax(0,1fr);gap:12px;align-items:center">
+              <span style="font:400 11px ${mono};color:${stg.muted}">${ln.label}</span>
+              <div style="position:relative;height:34px;background:${stg.panel};border-radius:4px;overflow:hidden">
+                ${ln.blocks.map(b => html`<div title=${b.n} style="position:absolute;top:3px;bottom:3px;left:${b.left};width:${b.width};background:${b.bg};border-radius:3px;box-shadow:inset -2px 0 0 ${stg.bg}"></div>`)}
+              </div>
+            </div>`)}
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font:400 12px ${mono};border-top:1px solid ${stg.line};padding-top:16px">
+          <span style="color:${acc};white-space:nowrap">${v.tuPassed} / 20 passed · ${v.tuTime}</span>
+          <span style="color:${stg.muted};white-space:nowrap">parallel ${sec(SPAN.par)} · sequential ${sec(SPAN.seq)}</span>
+        </div>
+      </div>`;
+
+    const pipelines = () => html`
+      <div style="border:1px solid ${stg.line};border-radius:12px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid ${stg.line}">
+          <span style="font:400 12px ${mono};color:${stg.muted}">Release.Pipeline · ${s.pRunning ? sec(s.pNow - this.pStart) : 'idle'}</span>
+          <div style="display:flex;gap:16px;align-items:center">
+            <label style="display:flex;gap:8px;align-items:center;cursor:pointer;font:400 12px ${mono};color:${stg.fg2}"><input type="checkbox" .checked=${s.flaky} @change=${() => this.setState({ flaky: !s.flaky })} style="accent-color:oklch(0.78 0.14 75)"><span style="white-space:nowrap">flaky broker</span></label>
+            <button @click=${this.runPipe} style="${btnOutline}">${s.pRunning ? 'running…' : 'Run pipeline ▸'}</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap">
+          <div style="flex:3 1 520px;min-width:0;padding:28px;overflow-x:auto">
+            <div style="position:relative;width:100%;min-width:560px;aspect-ratio:1000/320">
+              <svg viewBox="0 0 1000 320" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible" aria-hidden="true">
+                ${v.pEdges.map(e => html`<path d=${e.d} fill="none" stroke=${e.color} stroke-width="1.5" vector-effect="non-scaling-stroke"></path>`)}
+              </svg>
+              ${v.pNodes.map(n => html`
+                <div style="position:absolute;left:${n.left};top:${n.top};width:15%;height:21.875%;box-sizing:border-box;padding:8px 10px;border-radius:7px;border:1px solid ${n.border};background:${stg.panel};overflow:hidden;display:flex;flex-direction:column;justify-content:space-between">
+                  <div style="position:absolute;left:0;bottom:0;height:2px;width:${n.pct};background:${n.border}"></div>
+                  <span style="font-size:13px;font-weight:700;white-space:nowrap">${n.label}</span>
+                  <span style="font:400 10px ${mono};color:${n.subColor};white-space:nowrap">${n.sub}</span>
+                </div>`)}
+            </div>
+          </div>
+          <div style="flex:1 1 260px;border-left:1px solid ${stg.line};min-height:220px;max-height:260px;overflow:hidden;padding:16px 20px;font:400 11px/1.8 ${mono};display:flex;flex-direction:column;justify-content:flex-end" role="log">
+            ${s.plog.map(l => html`<div style="color:${v.C3[l.c] || stg.fg2};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.t}</div>`)}
+          </div>
+        </div>
+      </div>`;
+
+    const dekaf = () => html`
+      <div class="demo" style="border:1px solid ${stg.line};border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+          <span style="font:400 12px ${mono};color:${stg.muted}">topic "orders" · 3 partitions · consumed ${s.dkCons.reduce((a, b) => a + b, 0)}</span>
+          <div style="display:flex;gap:8px">
+            <button @click=${this.dkBurst} style="border:0;background:${acc};color:${stg.bg};border-radius:6px;padding:8px 14px;cursor:pointer;font:500 12px ${mono};white-space:nowrap">Produce ×12</button>
+            <button @click=${() => this.setState({ dkPaused: !s.dkPaused })} style="${btnOutline}">${s.dkPaused ? 'Resume consumer' : 'Pause consumer'}</button>
+          </div>
+        </div>
+        <div style="position:relative;height:204px">
+          ${v.dkParts.map(pt => html`
+            <div style="position:absolute;left:0;right:0;top:${pt.top}px;height:60px;display:flex;justify-content:space-between;align-items:center;font:400 11px ${mono}">
+              <span style="width:12%;white-space:nowrap">P${pt.i} · ${pt.prod}</span>
+              <div style="position:absolute;left:14%;right:14%;top:50%;border-top:1px dashed ${stg.line}"></div>
+              <span style="width:12%;text-align:right;white-space:nowrap;color:${pt.lagColor}">lag ${pt.lag}</span>
+            </div>`)}
+          ${v.dkMsgs.map(m => html`<div title=${m.key} style="position:absolute;left:${m.left};top:${m.top}px;width:40px;height:28px;border-radius:5px;background:${acc};color:${stg.bg};box-shadow:0 0 0 2px ${stg.bg};font:500 10px ${mono};box-sizing:border-box;opacity:${m.op};display:flex;align-items:center;justify-content:center;white-space:nowrap">${m.off}</div>`)}
+        </div>
+        <label style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;font:400 12px ${mono};color:${acc};border-top:1px solid ${stg.line};padding-top:16px"><span style="color:${stg.fg2}">Producer rate</span><input type="range" min="1" max="20" .value=${String(s.dkRate)} @input=${e => this.setState({ dkRate: +e.target.value })} style="flex:1;max-width:360px"><span style="color:${stg.fg2}">${s.dkRate} msg/s</span></label>
+      </div>`;
+
+    const respire = () => html`
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:16px">
+        <div style="border:1px solid ${stg.line};border-radius:12px;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:14px 20px;border-bottom:1px solid ${stg.line};font:400 12px ${mono};color:${stg.muted}">client · try a command</div>
+          <div style="height:260px;overflow:hidden;padding:16px 20px;font:400 12px/1.8 ${mono};display:flex;flex-direction:column;justify-content:flex-end" role="log">
+            ${v.rsLog.map(l => html`<div style="display:flex;gap:10px;white-space:nowrap;overflow:hidden"><span style="color:${l.c1}">${l.a}</span><span style="color:${l.c2};overflow:hidden;text-overflow:ellipsis">${l.b}</span></div>`)}
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:12px 20px;border-top:1px solid ${stg.line};font:400 12px ${mono}">
+            <span style="color:${acc}" aria-hidden="true">&gt;</span>
+            <input aria-label="Redis command" .value=${live(s.rsInput)} @input=${e => { this.state.rsInput = e.target.value; }} @keydown=${e => { if (e.key === 'Enter') this.rsExec(e.target.value); }} spellcheck="false" autocomplete="off" placeholder='SET greeting "hello" EX 10' style="flex:1;min-width:0;background:transparent;border:0;outline:none;color:${stg.fg};font:inherit;caret-color:${acc}">
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 20px 16px">
+            ${v.rsChips.map(c => html`<button class="chip" @click=${() => this.rsExec(c)} style="--acc:${acc};border:1px solid ${stg.line};background:transparent;color:${stg.fg2};border-radius:5px;padding:6px 10px;cursor:pointer;font:400 11px ${mono};white-space:nowrap">${c}</button>`)}
+          </div>
+        </div>
+        <div style="border:1px solid ${stg.line};border-radius:12px;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:14px 20px;border-bottom:1px solid ${stg.line};display:flex;justify-content:space-between;font:400 12px ${mono};color:${stg.muted}"><span>keyspace</span><span>${v.rsKeys.length} keys</span></div>
+          <div style="display:flex;flex-direction:column">
+            ${v.rsKeys.map(k => html`
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 90px;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid ${stg.line};font:400 12px ${mono}">
+                <span style="overflow:hidden;text-overflow:ellipsis">${k.key}</span>
+                <span style="color:${acc};overflow:hidden;text-overflow:ellipsis">${k.val}</span>
+                <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><span style="color:${stg.muted};font-size:10px">${k.ttl}</span><div style="width:100%;height:3px;background:${stg.panel}"><div style="height:3px;width:${k.pct};background:${acc}"></div></div></div>
+              </div>`)}
+          </div>
+        </div>
+      </div>`;
+
+    const pill = st => `padding:10px 16px;border-radius:999px;border:1px solid ${st.b};background:${st.bg};color:${st.fg}`;
+    const kevlar = () => html`
+      <div class="demo" style="border:1px solid ${stg.line};border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:28px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;font:500 13px ${mono}">
+          <span style="${pill(v.kc)}">Closed</span>
+          <span style="color:${stg.muted}">→ trips →</span>
+          <span style="${pill(v.ko)}">Open</span>
+          <span style="color:${stg.muted}">→ waits →</span>
+          <span style="${pill(v.kh)}">Half-open</span>
+          <span style="color:${stg.muted}">→ probe ok → Closed</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:4px" aria-hidden="true">
+          ${v.kvCells.map(c => html`<div style="aspect-ratio:1;border-radius:2px;background:${c.bg};box-shadow:inset 0 0 0 1px ${c.ring}"></div>`)}
+        </div>
+        <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;border-top:1px solid ${stg.line};padding-top:20px">
+          <div style="display:flex;gap:20px;flex-wrap:wrap;font:400 11px ${mono};color:${stg.fg2}">
+            <span style="display:flex;gap:8px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;background:${acc}"></span>ok ${s.kvN.ok}</span>
+            <span style="display:flex;gap:8px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;background:oklch(0.72 0.15 45)"></span>retried ${s.kvN.retried}</span>
+            <span style="display:flex;gap:8px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;background:oklch(0.62 0.18 25)"></span>failed ${s.kvN.failed}</span>
+            <span style="display:flex;gap:8px;align-items:center"><span style="width:10px;height:10px;border-radius:2px;box-shadow:inset 0 0 0 1px ${stg.muted}"></span>short-circuited ${s.kvN.short}</span>
+          </div>
+          <label style="display:flex;gap:14px;align-items:center;font:400 12px ${mono};color:${acc}"><span style="color:${stg.fg2}">Failure rate</span><input type="range" min="0" max="100" .value=${String(s.kvFail)} @input=${e => this.setState({ kvFail: +e.target.value })} style="width:min(200px,40vw)"><span style="color:${stg.fg2};width:40px">${s.kvFail}%</span></label>
+        </div>
+      </div>`;
+
+    const bdtest = () => html`
+      <div style="border:1px solid ${stg.line};border-radius:12px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 24px;border-bottom:1px solid ${stg.line}">
+          <span style="font:400 12px ${mono};color:${stg.muted}">BDTest report · Checkout</span>
+          <div style="display:flex;gap:16px;align-items:center">
+            <label style="display:flex;gap:8px;align-items:center;cursor:pointer;font:400 12px ${mono};color:${stg.fg2}"><input type="checkbox" .checked=${s.bdBroken} @change=${() => { this.setState({ bdBroken: !s.bdBroken }); setTimeout(this.bdStart, 0); }} style="accent-color:oklch(0.62 0.18 25)"><span style="white-space:nowrap">introduce a bug</span></label>
+            <button @click=${this.bdStart} style="${btnOutline}">Run scenarios</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))">
+          ${v.bdScen.map(sc => html`
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px;border-right:1px solid ${stg.line}">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font-size:18px;font-weight:700;letter-spacing:-.01em">${sc.title}</span><span style="font:500 11px ${mono};padding:4px 8px;border-radius:4px;white-space:nowrap;background:${sc.pillBg};color:${sc.pillFg}">${sc.status}</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                ${sc.steps.map(st => html`
+                  <div style="display:grid;grid-template-columns:20px 56px minmax(0,1fr) 48px;gap:8px;align-items:baseline;padding:8px 0;font-size:15px;opacity:${st.op}">
+                    <span style="font:500 12px ${mono};color:${st.color}">${st.icon}</span>
+                    <span style="font:500 12px ${mono};color:${acc}">${st.kw}</span>
+                    <span>${st.text}</span>
+                    <span style="font:400 11px ${mono};color:${stg.muted};text-align:right">${st.ms}</span>
+                  </div>`)}
+              </div>
+              ${sc.err ? html`<div style="font:400 12px/1.6 ${mono};color:oklch(0.75 0.14 25);background:${stg.panel};padding:12px 14px;border-radius:6px">${sc.err}</div>` : ''}
+            </div>`)}
+        </div>
+      </div>`;
+
+    const demos = { tunit, modularpipelines: pipelines, dekaf, respire, kevlar, bdtest };
+
+    render(html`
+      <div style="min-height:100vh;background:${PG.ground};color:${PG.ink};font-family:'Schibsted Grotesk',sans-serif">
+        <header class="wrap" style="padding-top:28px;padding-bottom:28px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;font-size:15px">
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="font-weight:700">Tom Longhurst</span><span style="color:${PG.muted}">Software Engineer</span></div>
+          <nav style="display:flex;gap:28px;font-family:${mono};font-size:12px"><a href="https://github.com/thomhurst">GitHub ↗</a><a href="https://www.nuget.org/profiles/thomhurst">NuGet ↗</a></nav>
+        </header>
+
+        <main>
+          <div class="wrap" style="padding-top:56px;padding-bottom:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px;align-items:end">
+            <h1 style="margin:0;font-weight:800;font-size:clamp(44px,6vw,80px);line-height:.95;letter-spacing:-.045em;text-wrap:balance">Open-source libraries for building, testing and running .NET.</h1>
+            <div style="display:flex;gap:40px;justify-content:flex-end;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:800;font-size:44px;letter-spacing:-.04em;line-height:1">${v.totStars}</span><span style="font:400 11px ${mono};color:${PG.muted}">GitHub stars</span></div>
+              <div style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:800;font-size:44px;letter-spacing:-.04em;line-height:1">${v.totDl}</span><span style="font:400 11px ${mono};color:${PG.muted}">NuGet downloads</span></div>
+              <div style="display:flex;align-items:flex-end;font:400 11px ${mono};color:${PG.muted}">${v.statsNote}</div>
+            </div>
+          </div>
+
+          <div class="wrap">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:8px" role="tablist" aria-label="Projects">
+              ${v.projects.map(p => html`
+                <button class="tile" role="tab" aria-selected=${p.on} aria-controls="stage" @click=${() => this.select(p.id)} style="--hov:${p.tileHover};text-align:left;cursor:pointer;border:0;border-radius:10px;padding:18px 18px 16px;background:${p.tileBg};color:${p.tileFg};display:flex;flex-direction:column;gap:14px;font-family:'Schibsted Grotesk',sans-serif;box-shadow:inset 0 0 0 1px ${p.tileRing};transition:background .2s">
+                  <div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span style="width:10px;height:10px;border-radius:50%;background:${p.accent}"></span><span style="font:400 11px ${mono};opacity:.7">${p.num}</span></div>
+                  <span style="font-weight:700;font-size:20px;letter-spacing:-.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+                  <div style="display:flex;justify-content:space-between;gap:8px;width:100%;font:400 11px ${mono};opacity:.7"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.tag}</span><span style="white-space:nowrap;flex-shrink:0">★ ${p.stars}</span></div>
+                </button>`)}
+            </div>
+          </div>
+
+          <div class="wrap" style="padding-top:16px;padding-bottom:96px">
+            <section id="stage" class="stage" role="tabpanel" aria-label=${cur.name} style="background:${stg.bg};color:${stg.fg};box-shadow:inset 0 0 0 1px ${PG.stageBorder};border-radius:16px;display:flex;flex-direction:column;gap:40px;transition:background .3s">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:32px;align-items:end">
+                <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+                  <span style="font:400 12px ${mono};color:${acc}">${cur.num} / ${cur.tag}</span>
+                  <h2 style="margin:0;font-weight:800;font-size:${cur.name.length > 10 ? 'clamp(36px,5.6vw,80px)' : 'clamp(44px,8vw,112px)'};line-height:.85;letter-spacing:-.055em;overflow-wrap:break-word">${cur.name}</h2>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <p style="margin:0;font-size:22px;line-height:1.3;font-weight:500;letter-spacing:-.01em;text-wrap:pretty">${cur.headline}</p>
+                  <p style="margin:0;font-size:15px;line-height:1.6;color:${stg.muted};text-wrap:pretty">${cur.blurb}</p>
+                </div>
+              </div>
+
+              ${demos[cur.id]()}
+
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;align-items:stretch">
+                <pre style="margin:0;background:${stg.panel};border-radius:12px;padding:24px;font:400 13px/1.7 ${mono};color:${stg.fg2};overflow:auto">${cur.code}</pre>
+                <div style="display:flex;flex-direction:column;justify-content:space-between;gap:24px;padding:8px 0">
+                  <div style="display:flex;gap:32px">
+                    <div style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:800;font-size:36px;letter-spacing:-.04em;line-height:1">${cur.stars}</span><span style="font:400 11px ${mono};color:${stg.muted}">stars</span></div>
+                    <div style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:800;font-size:36px;letter-spacing:-.04em;line-height:1">${cur.dl}</span><span style="font:400 11px ${mono};color:${stg.muted}">downloads</span></div>
+                  </div>
+                  <button @click=${() => { try { navigator.clipboard.writeText('dotnet add package ' + cur.pkg); } catch (e) {} this.setState({ copied: true }); }} style="display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid ${stg.line};background:transparent;color:${stg.fg2};border-radius:8px;padding:14px 16px;cursor:pointer;font:400 12px ${mono};text-align:left"><span style="overflow-wrap:anywhere">dotnet add package ${cur.pkg}</span><span style="color:${acc}">${s.copied ? 'copied' : 'copy'}</span></button>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap">
+                    <a href=${cur.docs} style="flex:1;min-width:200px;background:${acc};color:${stg.bg};border-radius:8px;padding:18px 20px;font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center"><span>Explore ${cur.name}</span><span aria-hidden="true">→</span></a>
+                    <a href=${cur.url} style="border:1px solid ${stg.line};border-radius:8px;padding:18px 20px;font-weight:500;font-size:17px">GitHub ↗</a>
+                  </div>
+                  <button class="next" @click=${() => this.select(v.nxt.id)} style="--fg:${stg.fg};align-self:flex-start;border:0;background:transparent;padding:0;color:${stg.muted};cursor:pointer;font:400 12px ${mono}">Next: ${v.nxt.name} →</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+
+        <footer class="wrap" style="padding-bottom:48px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font:400 12px ${mono};color:${PG.muted}"><span>Tom Longhurst · Software Engineer</span><a href="https://github.com/sponsors/thomhurst">Sponsor on GitHub ↗</a></footer>
+      </div>`, this.root);
+  }
 }
 
-select(0);
-if (!reduceMotion) requestAnimationFrame(frame);
-document.fonts && document.fonts.ready.then(redrawIfStill);
-
-// Refresh star counts from GitHub; the numbers above are the fallback.
-projects.forEach(async (p) => {
-  try {
-    const res = await fetch(`https://api.github.com/repos/thomhurst/${p.repo}`);
-    if (!res.ok) return;
-    const { stargazers_count } = await res.json();
-    if (typeof stargazers_count === "number") {
-      document.querySelector(`#tab-${p.repo} [data-stars]`).textContent = stargazers_count.toLocaleString("en-GB");
-    }
-  } catch {}
-});
+new Portfolio(document.getElementById('app'));
 </script>
 </body>
 </html>
