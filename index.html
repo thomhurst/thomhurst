@@ -76,7 +76,7 @@ const P = [
     blurb: 'Behaviour-driven testing for .NET. Steps are ordinary methods and the report reads like the spec. Introduce a bug to see how a failure is reported.',
     code: '[Test]\npublic async Task Checkout_applies_discount()\n{\n    await Given(() => ABasketWith(3, "items"))\n        .When(() => TheDiscountCodeIsApplied("TEN"))\n        .Then(() => TheTotalIsReducedBy(10))\n        .BDTestAsync();\n}' },
 ];
-P.forEach(p => { p.repo = p.name; p.url = 'https://github.com/thomhurst/' + p.repo; p.docs = p.docs || 'https://thomhurst.github.io/' + p.repo + '/'; });
+P.forEach(p => { p.repo = p.name; p.url = 'https://github.com/thomhurst/' + p.repo; p.docs = p.docs || 'https://' + p.id + '.tomlonghurst.dev/'; });
 
 // Midnight look: dark page ground, each project's stage tinted by its hue.
 const PG = { ground: 'oklch(0.14 0.006 260)', ink: 'oklch(0.95 0.006 260)', muted: 'oklch(0.66 0.01 260)', tile: 'oklch(0.185 0.008 260)', tileHover: 'oklch(0.22 0.01 260)', tileFg: 'oklch(0.9 0.006 260)', ring: 'transparent', stageBorder: 'transparent' };
@@ -508,8 +508,8 @@ class Portfolio {
           <div class="wrap">
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px" role="tablist" aria-label="Projects">
               ${v.projects.map(p => html`
-                <button class="tile" role="tab" aria-selected=${p.on} aria-controls="stage" @click=${() => this.select(p.id)} style="--hov:${p.tileHover};text-align:left;cursor:pointer;border:0;border-radius:10px;padding:18px 18px 16px;background:${p.tileBg};color:${p.tileFg};display:flex;flex-direction:column;gap:14px;font-family:'Schibsted Grotesk',sans-serif;box-shadow:inset 0 0 0 1px ${p.tileRing};transition:background .2s">
-                  <div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span style="width:10px;height:10px;border-radius:50%;background:${p.accent}"></span><span style="font:400 11px ${mono};opacity:.7">${p.num}</span></div>
+                <button class="tile" role="tab" aria-selected=${p.on} aria-controls="stage" title=${p.on ? 'Open ' + p.name + ' docs' : ''} @click=${() => p.on ? location.assign(p.docs) : this.select(p.id)} style="--hov:${p.tileHover};text-align:left;cursor:pointer;border:0;border-radius:10px;padding:18px 18px 16px;background:${p.tileBg};color:${p.tileFg};display:flex;flex-direction:column;gap:14px;font-family:'Schibsted Grotesk',sans-serif;box-shadow:inset 0 0 0 1px ${p.tileRing};transition:background .2s">
+                  <div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span style="width:10px;height:10px;border-radius:50%;background:${p.accent}"></span><span style="font:400 11px ${mono};opacity:.7">${p.on ? 'docs ↗' : p.num}</span></div>
                   <span style="font-weight:700;font-size:20px;letter-spacing:-.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
                   <div style="display:flex;justify-content:space-between;gap:8px;width:100%;font:400 11px ${mono};opacity:.7"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.tag}</span><span style="white-space:nowrap;flex-shrink:0">★ ${p.stars}</span></div>
                 </button>`)}
